@@ -152,8 +152,19 @@ class NuageLocalLinkConnectionHook(base.ProcessingHook):
         port id TLV, which is not known to VSD, here we assume that numeric
         value is snmp ifIndex and do conversion, otherwise it is a port
         mnemonic.
+        High Port Count format:
+          32 bits unsigned integer, from most significant to least significant:
+          3 bits: 000 -> indicates physical port
+          4 bits: slot number
+          2 bits: High part of port number
+          2 bits: mda number
+          6 bits: Low part of port number
+          15 bits: channel number
+        High and low part of port number need to be combined to create 8 bit
+        unsigned int
+
         """
         return "%s/%s/%s" % (
             (int(ifindex) >> 25),
-            (int(ifindex) >> 21) & 0xf,
-            (int(ifindex) >> 15) & 0x3f)
+            (int(ifindex) >> 21) & 0x3,
+            ((int(ifindex) >> 15) & 0x3f) | ((int(ifindex) >> 17) & 0xc0))
