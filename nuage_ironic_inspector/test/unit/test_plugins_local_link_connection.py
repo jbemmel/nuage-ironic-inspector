@@ -159,3 +159,16 @@ class TestNuageLocalLinkConnectionHook(test_base.NodeTest):
         ]
         self.hook.before_update(self.data, self.node_info)
         self.assertCalledWithPatch(patches, mock_patch)
+
+    @mock.patch.object(node_cache.NodeInfo, 'patch_port')
+    def test_invalid_tlv_value(self, mock_patch):
+        self.data['inventory']['interfaces'][0]['lldp'][2] = (
+            2, 'invalidhex')
+        patches = [
+            {'path': '/local_link_connection/switch_id',
+             'value': '68:54:ed:01:6d:00', 'op': 'add'},
+            {'path': '/local_link_connection/switch_info',
+             'value': '10.30.254.2', 'op': 'add'},
+        ]
+        self.hook.before_update(self.data, self.node_info)
+        self.assertCalledWithPatch(patches, mock_patch)
